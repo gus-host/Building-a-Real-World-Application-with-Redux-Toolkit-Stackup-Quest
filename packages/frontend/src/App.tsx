@@ -10,9 +10,27 @@ import EditPost from "./pages/posts/EditPost";
 import NotFound from "./pages/404";
 import Register from "./pages/auth/Register";
 import "./App.css";
+import type { AuthState, UserResponse } from "./services/auth/types";
 
 const App = () => {
-  const authState = useAppSelector((state) => state.auth);
+  let authState: AuthState = {
+    user: null,
+    token: null
+}
+const { user, token } = useAppSelector((state) => state.auth);
+const userSession = sessionStorage.getItem("user");
+const response: UserResponse = userSession ? JSON.parse(userSession) : null;
+if (sessionStorage.getItem("isAuthenticated") === "true" && response !== null) {
+   authState = {
+       user: {
+           username: response.username,
+           id: response.userId,
+           email: response.email,
+           role: response.role
+       } ?? user,
+       token: response.token ?? token
+   }
+}
   const isAuthenticated = authState.user !== null && authState.token !== null;
 
   const router = createBrowserRouter([
